@@ -221,7 +221,7 @@ void render(sf::RenderWindow& window) {
     // the left/right half of the screen.
     // Movement should be governed by the tween function.
     // ====== ====== ======
-    
+
     // Create a circle
     sf::CircleShape circle = sf::CircleShape(10);  // Initialize a circle with radius 10
     
@@ -253,8 +253,54 @@ void render(sf::RenderWindow& window) {
     // TODO: (Q3) Draw tween function graph with a dot
     // on the current portion of the curve
     // ====== ====== ======
+    // References: https://stackoverflow.com/questions/53404552/plot-a-function-using-sfml
+
+    
+    // Graph object - x axis is time (frame), y axis is t for the function (f, t)
+    // Making the box
+    const float graphLeft = WINDOW_WIDTH / 10.0f;
+    const float graphBottom = WINDOW_HEIGHT - (WINDOW_HEIGHT / 10.0f);
+
+    const float graphLength = WINDOW_WIDTH * (4.0f/5.0f);
+    const float graphHeight = WINDOW_HEIGHT * (0.5f);
+
+    // Draw the graph box - the x and y axes
+    sf::VertexArray graphBox(sf::PrimitiveType::LineStrip, 3);  // 3 points
+    graphBox[0] = sf::Vertex{{graphLeft, graphBottom - graphHeight}, sf::Color::White};
+    graphBox[1] = sf::Vertex{{graphLeft, graphBottom}, sf::Color::White};
+    graphBox[2] = sf::Vertex{{graphLeft + graphLength, graphBottom}, sf::Color::White};
+
+    window.draw(graphBox);
+
+    // Draw the graph function
+    const int xVals = 500;
+    sf::VertexArray graphFunction = sf::VertexArray(sf::PrimitiveType::LineStrip, xVals);
+
+    for (int x = 0; x < xVals; ++x) {
+        float tVal = x / float(xVals); // Gets a normalized tVal along axis
+        float yVal = tween(0.0f, 1.0f, tVal);
+
+        // Add a vertex of the graph
+        graphFunction[x] = sf::Vertex{{graphLeft + (tVal * graphLength), graphBottom - (yVal * graphHeight)}, sf::Color::White};
+    }
+
+    window.draw(graphFunction);
+
+    // Point on the graph
+    float yCurrent = tween(0.0f, 1.0f, t);
+    sf::CircleShape graphPoint(6.0f);
+
+    // Set origin and colour of point
+    graphPoint.setOrigin(sf::Vector2f(graphPoint.getRadius(), graphPoint.getRadius()));
+    graphPoint.setFillColor(sf::Color::Green);
+
+    // Set the position based on the current y value -
+    graphPoint.setPosition(sf::Vector2f(graphLeft + (t * graphLength), graphBottom - (yCurrent * graphHeight)));
+    
+    window.draw(graphPoint);
 
     window.display();
+
 }
 
 int main() {
